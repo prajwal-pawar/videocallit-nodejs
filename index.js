@@ -10,10 +10,21 @@ const io = require("socket.io")(server);
 
 // set view engine
 app.set("view engine", "ejs");
-app.set(express.static("./assets"));
+app.set("views", "./views");
+app.use(express.static("./assets"));
 
 // using routes
 app.use("/", require("./routes"));
+
+// when user connects
+io.on("connection", (socket) => {
+  socket.on("join-room", (roomId, userId) => {
+    socket.join(roomId);
+
+    // when new user connects
+    socket.to(roomId).emit("user-connected", userId);
+  });
+});
 
 // start server
 server.listen(PORT, () => {
